@@ -11,7 +11,8 @@ scope = [
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
+credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open("FormularioUsuarios").sheet1  # Nome da planilha
 
