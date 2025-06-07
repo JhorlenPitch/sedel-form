@@ -18,7 +18,7 @@ app.secret_key = 'sedel123'
 
 #Virtual
 credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope
+creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope)
 # Local
 #creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
 client = gspread.authorize(creds)
