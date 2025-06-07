@@ -7,7 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 app = Flask(__name__)
 app.secret_key = 'sedel123'
 
-# Escopo de acesso à API do Google Sheets
+# Escopo necessário para acessar o Google Sheets
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
@@ -15,16 +15,18 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-# Autenticação com Google Sheets (Render ou Local)
+# Autenticação com Google Sheets
 try:
-    if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+    if os.environ.get("GOOGLE_CREDENTIALS_JSON"):
+        # Ambiente Render (credenciais via variável de ambiente)
         credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
         creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope)
     else:
+        # Ambiente local (arquivo físico)
         creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
 
     client = gspread.authorize(creds)
-    sheet = client.open("FormularioUsuarios").sheet1
+    sheet = client.open("FormularioUsuarios").sheet1  # Nome da planilha
 
 except Exception as e:
     raise RuntimeError(f"Erro na autenticação com Google Sheets: {e}")
