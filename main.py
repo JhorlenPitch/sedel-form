@@ -5,8 +5,9 @@ import os
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
+app.secret_key = 'sedel123'
 
-# Autenticação com Google Sheets
+# Escopo de acesso à API do Google Sheets
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
@@ -14,15 +15,19 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-app.secret_key = 'sedel123'
+# Autenticação com Google Sheets (Render ou Local)
+try:
+    if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+        credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope)
+    else:
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
 
-#Virtual
-credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope)
-# Local
-#creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
-client = gspread.authorize(creds)
-sheet = client.open("FormularioUsuarios").sheet1  # Nome da planilha
+    client = gspread.authorize(creds)
+    sheet = client.open("FormularioUsuarios").sheet1
+
+except Exception as e:
+    raise RuntimeError(f"Erro na autenticação com Google Sheets: {e}")
 
 @app.route('/', methods=['GET', 'POST'])
 def formulario():
