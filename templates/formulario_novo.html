@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro - SEDEL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/png" href="static/imagens/logo_medalha.png.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+    body { background-color: #f8fafc; }
+    .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
+    .register-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .register-card { width: 100%; max-width: 480px; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); background: white; }
+    .input-container { position: relative; margin-bottom: 1rem; }
+    .input-field, .input-field > select {
+      width: 100%; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px;
+      background-color: white; transition: all 0.2s ease; font-size: 14px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); -webkit-appearance: none;
+    }
+    .input-field:hover, .input-field > select:hover { border-color: #93c5fd; }
+    .input-field:focus, .input-field > select:focus {
+      outline: none; border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .floating-label {
+      position: absolute; top: -9px; left: 10px; background: white;
+      padding: 0 6px; font-size: 12px; color: #64748b; font-weight: 500;
+      transform: translateY(0); opacity: 1; pointer-events: none; z-index: 10;
+    }
+    .submit-btn {
+      width: 100%; padding: 0.875rem; border: none; border-radius: 8px;
+      font-weight: 500; font-size: 15px; letter-spacing: 0.5px;
+      transition: all 0.2s ease; cursor: pointer;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .submit-btn:active { transform: translateY(0); }
+    @media (max-width: 640px) {
+      .register-container { padding: 1rem; }
+      .register-card { border-radius: 10px; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+{% include 'mensagem.html' %}
+  <div class="register-container">
+    <div class="register-card bg-white mx-4">
+      <div class="gradient-bg py-4 px-8">
+        <div class="flex items-center justify-center gap-3">
+          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+            <i class="fas fa-running text-blue-600 text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-white">Sedel</h1>
+            <p class="text-white opacity-90 text-xs">Secretaria de Estado do Desporto e Lazer</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-8 py-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-1">Cadastro de Atleta SEDEL</h2>
+        <p class="text-gray-600 text-sm mb-6">Preencha todos os campos obrigatórios</p>
+
+        <form method="post" action="/" class="mt-4">
+          <div class="grid grid-cols-1 gap-4">
+            <div class="input-container">
+              <input type="text" id="nome_atleta" name="nome_atleta" class="input-field" required placeholder="Nome do Atleta">
+              <label for="nome_atleta" class="floating-label">Nome do Atleta</label>
+            </div>
+            <div class="input-container">
+              <input type="text" id="nome_responsavel" name="nome_responsavel" class="input-field" required placeholder="Responsável">
+              <label for="nome_responsavel" class="floating-label">Responsável</label>
+            </div>
+            <div class="input-container">
+              <input type="tel" id="whatsapp_atleta" name="whatsapp_atleta" class="input-field" required placeholder="WhatsApp" oninput="formatarTelefone(this)">
+              <label for="whatsapp_atleta" class="floating-label">WhatsApp</label>
+            </div>
+            <div class="input-container">
+              <input type="date" id="data_nascimento_atleta" name="data_nascimento_atleta" class="input-field" required>
+              <label for="data_nascimento_atleta" class="floating-label">Data de Nascimento</label>
+            </div>
+
+            <div class="input-container">
+              <input type="text" id="cpf_atleta" name="cpf_atleta" class="input-field" required placeholder="CPF" oninput="formatarCPF(this)">
+              <label for="cpf_atleta" class="floating-label">CPF</label>
+            </div>
+
+            <div class="input-container">
+              <input type="text" id="cep_atleta" name="cep_atleta" class="input-field" required placeholder="CEP" onblur="buscarCEP(this.value)">
+              <label for="cep_atleta" class="floating-label">CEP</label>
+            </div>
+            <div class="input-container">
+              <select id="estado_atleta" name="estado_atleta" class="input-field" required onchange="carregarCidades()">
+                <option value="">Selecione um estado</option>
+              </select>
+              <label for="estado_atleta" class="floating-label">Estado</label>
+            </div>
+            <div class="input-container">
+              <select id="cidade_atleta" name="cidade_atleta" class="input-field" required>
+                <option value="">Selecione uma cidade</option>
+              </select>
+              <label for="cidade_atleta" class="floating-label">Cidade</label>
+            </div>
+            <div class="input-container">
+              <input type="text" id="bairro_atleta" name="bairro_atleta" class="input-field" required placeholder="Bairro">
+              <label for="bairro_atleta" class="floating-label">Bairro</label>
+            </div>
+            <div class="input-container">
+              <input type="text" id="rua_atleta" name="rua_atleta" class="input-field" required placeholder="Rua">
+              <label for="rua_atleta" class="floating-label">Rua</label>
+            </div>
+            <div class="input-container">
+              <input type="text" id="numero_atleta" name="numero_atleta" class="input-field" required placeholder="Número">
+              <label for="numero_atleta" class="floating-label">Número</label>
+            </div>
+            <div class="input-container">
+              <select id="nucleo_atleta" name="nucleo_atleta" class="input-field" required>
+                <option value="">Selecione um núcleo</option>
+                <option value="Núcleo Norte">Núcleo Norte</option>
+                <option value="Núcleo Sul">Núcleo Sul</option>
+                <option value="Núcleo Leste">Núcleo Leste</option>
+                <option value="Núcleo Oeste">Núcleo Oeste</option>
+              </select>
+              <label for="nucleo_atleta" class="floating-label">Núcleo</label>
+            </div>
+            <div class="input-container">
+              <select id="projeto" name="projeto" class="input-field" required>
+                <option value="">Selecione um projeto</option>
+                <option value="Respirar">Respirar</option>
+                <option value="Futvolei">Futvolei</option>
+                <option value="Pelci">Pelci</option>
+                <option value="Funcional por Toda Parte">Funcional por Toda Parte</option>
+              </select>
+              <label for="projeto" class="floating-label">Projeto</label>
+            </div>
+          </div>
+
+          <button type="submit" class="gradient-bg text-white submit-btn mt-4">
+            Cadastrar Atleta
+          </button>
+
+        <footer class="mt-8 text-center text-sm text-gray-500">
+          <div class="flex flex-col items-center gap-1">
+            <a href="https://docs.google.com/spreadsheets/d/1_dqbRBGBkVBsNPEK2f7pjEJ8KsEHwayrO-PcToC1r8o/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">
+              <i class="fas fa-table text-blue-600"></i>
+              Veja os atletas aqui
+              <i class="fas fa-external-link-alt text-xs"></i>
+            </a>
+            <p class="flex items-center gap-2 text-gray-500 mt-1">
+              <i class="fas fa-code text-blue-600"></i>
+              Desenvolvido por <span class="font-medium text-gray-700">&copy; JhorlenDev</span>
+            </p>
+          </div>
+        </footer>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/estados_cidades.js') }}"></script>
+  <script>
+    function formatarCPF(cpf) {
+      // Remove tudo que não é dígito
+      cpf.value = cpf.value.replace(/\D/g, '');
+
+      // Coloca um . a cada 3 dígitos, depois - aos últimos 2
+      cpf.value = cpf.value.replace(/(\d{3})(\d)/, '$1.$2')
+                           .replace(/(\d{3})(\d)/, '$1.$2')
+                           .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+      // Limita a 14 caracteres (xxx.xxx.xxx-xx)
+      cpf.value = cpf.value.substring(0, 14);
+    }
+
+    function formatarTelefone(telefone) {
+      // Remove tudo que não é dígito
+      telefone.value = telefone.value.replace(/\D/g, '');
+
+      // Coloca parênteses em volta dos dois primeiros dígitos
+      telefone.value = telefone.value.replace(/^(\d{2})(\d)/g, '($1) $2');
+
+      // Coloca hífen entre o quarto e o quinto dígitos depois do espaço
+      telefone.value = telefone.value.replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+
+      // Limita a 15 caracteres ((xx) xxxxx-xxxx)
+      telefone.value = telefone.value.substring(0, 15);
+    }
+
+    function carregarCidades() {
+      const estado = document.getElementById("estado_atleta").value;
+      const cidadeSelect = document.getElementById("cidade_atleta");
+      cidadeSelect.innerHTML = '<option value="">Selecione uma cidade</option>';
+      (estadosECidades[estado] || []).forEach(cidade => {
+        const option = document.createElement("option");
+        option.value = cidade;
+        option.textContent = cidade;
+        cidadeSelect.appendChild(option);
+      });
+    }
+
+    function buscarCEP(cep) {
+      cep = cep.replace(/\D/g, '');
+      if (cep.length !== 8) return;
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.erro) {
+            const estado = data.uf;
+            const cidade = data.localidade;
+            document.getElementById('estado_atleta').value = estado;
+            carregarCidades();
+            setTimeout(() => {
+              document.getElementById('cidade_atleta').value = cidade;
+            }, 50);
+            document.getElementById('bairro_atleta').value = data.bairro;
+            document.getElementById('rua_atleta').value = data.logradouro;
+            document.getElementById('numero_atleta').focus();
+          } else {
+            alert("CEP não encontrado!");
+          }
+        }).catch(err => console.error("Erro ao buscar CEP:", err));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const estadoSelect = document.getElementById("estado_atleta");
+      for (let estado in estadosECidades) {
+        const option = document.createElement("option");
+        option.value = estado;
+        option.textContent = estado;
+        estadoSelect.appendChild(option);
+      }
+    });
+  </script>
+</body>
+</html>
