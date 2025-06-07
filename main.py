@@ -5,9 +5,8 @@ import os
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
-app.secret_key = 'sedel123'
 
-# Autenticacao Google Sheets
+# Autenticação com Google Sheets
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
@@ -15,9 +14,15 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
+app.secret_key = 'sedel123'
+
+#Virtual
+credenciais_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(credenciais_dict, scope
+# Local
+#creds = ServiceAccountCredentials.from_json_keyfile_name("credenciais.json", scope)
 client = gspread.authorize(creds)
-sheet = client.open("FormularioUsuarios").sheet1
+sheet = client.open("FormularioUsuarios").sheet1  # Nome da planilha
 
 @app.route('/', methods=['GET', 'POST'])
 def formulario():
